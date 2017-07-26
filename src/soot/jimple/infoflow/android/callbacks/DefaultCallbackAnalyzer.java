@@ -309,6 +309,9 @@ public class DefaultCallbackAnalyzer extends AbstractCallbackAnalyzer implements
 			return getLifecycleMethods(sc, AndroidEntryPointConstants.getGCMIntentServiceMethods());
 		case GCMListenerService:
 			return getLifecycleMethods(sc, AndroidEntryPointConstants.getGCMListenerServiceMethods());
+		//WEAR SUPPORT
+		case GoogleApiClient:
+			return getLifecycleMethods(sc, AndroidEntryPointConstants.getGoogleApiClientMethods());
 		case ServiceConnection:
 			return getLifecycleMethods(sc, AndroidEntryPointConstants.getServiceConnectionMethods());
 		case Plain:
