@@ -1,7 +1,17 @@
+
 com.google.android.gms.common.api.GoogleApiClient$ConnectionCallbacks
 com.google.android.gms.common.api.GoogleApiClient$OnConnectionFailedListener
+
 com.google.android.gms.wearable.MessageApi$MessageListener
+com.google.android.gms.wearable.CapabilityApi$CapabilityListener
+com.google.android.gms.wearable.ChannelApi$ChannelListener
+com.google.android.gms.wearable.DataApi$DataListener
+com.google.android.gms.wearable.NodeApi$NodeListener
+com.google.android.gms.wearable.WearableListenerService
+
+
 com.google.android.gms.common.api.ResultCallback
+
 android.support.v4.app.ActivityCompat$OnRequestPermissionsResultCallback
 
 android.accounts.OnAccountsUpdateListener
