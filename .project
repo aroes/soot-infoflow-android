@@ -3,6 +3,7 @@
 	<name>soot-infoflow-android</name>
 	<comment></comment>
 	<projects>
+		<project>cloning</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
