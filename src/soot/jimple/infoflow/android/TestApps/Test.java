@@ -734,7 +734,7 @@ public class Test {
 			final SetupApplication app;
 			if (null == ipcManager)
 			{
-				app = new SetupApplication(androidJar, fileName);
+				app = new SetupApplication(androidJar, fileName, "D:\\Android\\flowdroid\\wearapps\\android_wear_micro_apk.apk");
 			}
 			else
 			{
