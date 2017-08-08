@@ -40,7 +40,7 @@ public class MessengerInstrumenter implements PreAnalysisHandler {
 			// doesn't exist for methods in Soot
 			List<SootMethod> methodCopyList = new ArrayList<>(sootClass.getMethods());
 			for (SootMethod sootMethod : methodCopyList) {
-				try {
+				if (sootMethod.isConcrete()) {
 					Body body = sootMethod.retrieveActiveBody();
 					Map<Stmt, List<Unit>> stmt2InjectedStmtList = new HashMap<Stmt, List<Unit>>();
 
@@ -259,10 +259,6 @@ public class MessengerInstrumenter implements PreAnalysisHandler {
 						}
 					}
 					body.validate();
-				} catch (Exception ex) {
-					// Ignore the methods that we cannot retrieve their active
-					// body
-					// ex.printStackTrace();
 				}
 
 			}

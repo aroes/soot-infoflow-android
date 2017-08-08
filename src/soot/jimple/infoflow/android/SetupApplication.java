@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import com.rits.cloning.Cloner;
-
 import heros.solver.Pair;
 import soot.G;
 import soot.Main;
@@ -87,8 +85,6 @@ import soot.jimple.infoflow.source.data.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.source.data.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.util.SystemClassHandler;
-import soot.jimple.toolkits.callgraph.CallGraph;
-import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
 import soot.util.HashMultiMap;
 import soot.util.MultiMap;
@@ -101,7 +97,8 @@ public class SetupApplication {
 	private MultiMap<SootClass, CallbackDefinition> callbackMethods = new HashMultiMap<>();
 	private MultiMap<SootClass, SootClass> fragmentClasses = new HashMultiMap<>();
 
-	private InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
+
+	protected InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
 
 	private Set<SootClass> entrypoints = null;
 	private Set<String> callbackClasses = null;
@@ -111,6 +108,7 @@ public class SetupApplication {
 	private ProcessManifest manifest = null;
 	private ProcessManifest manifest2 = null;
 
+
 	private final String androidJar;
 	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
@@ -119,7 +117,7 @@ public class SetupApplication {
 	private final String additionalClasspath;
 	private ITaintPropagationWrapper taintWrapper;
 
-	private AccessPathBasedSourceSinkManager sourceSinkManager = null;
+	private ISourceSinkManager sourceSinkManager = null;
 
 	private IInfoflowConfig sootConfig = new SootConfigForAndroid();
 	private BiDirICFGFactory cfgFactory = null;
@@ -136,7 +134,6 @@ public class SetupApplication {
 
 	private Set<PreAnalysisHandler> preprocessors = new HashSet<>();
 	private Set<ResultsAvailableHandler> resultsAvailableHandlers = new HashSet<>();
-
 
 
 	/**
@@ -167,8 +164,13 @@ public class SetupApplication {
 		}
 
 		/**
+<<<<<<< HEAD
 		 * Gets the total number of source-to-sink connections from the last partial
 		 * result that was added to this aggregator
+=======
+		 * Gets the total number of source-to-sink connections from the last
+		 * partial result that was added to this aggregator
+>>>>>>> upstream/develop
 		 * 
 		 * @return The number of leaks in the last added partial result
 		 */
@@ -182,9 +184,15 @@ public class SetupApplication {
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
 	 * @param androidJar
+<<<<<<< HEAD
 	 *            The path to the Android SDK's "platforms" directory if Soot shall
 	 *            automatically select the JAR file to be used or the path to a
 	 *            single JAR file to force one.
+=======
+	 *            The path to the Android SDK's "platforms" directory if Soot
+	 *            shall automatically select the JAR file to be used or the path
+	 *            to a single JAR file to force one.
+>>>>>>> upstream/develop
 	 * @param apkFileLocation
 	 *            The path to the APK file to be analyzed
 	 */
@@ -196,9 +204,15 @@ public class SetupApplication {
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
 	 * @param androidJar
+<<<<<<< HEAD
 	 *            The path to the Android SDK's "platforms" directory if Soot shall
 	 *            automatically select the JAR file to be used or the path to a
 	 *            single JAR file to force one.
+=======
+	 *            The path to the Android SDK's "platforms" directory if Soot
+	 *            shall automatically select the JAR file to be used or the path
+	 *            to a single JAR file to force one.
+>>>>>>> upstream/develop
 	 * @param apkFileLocation
 	 *            The path to the APK file to be analyzed
 	 * @param ipcManager
@@ -213,17 +227,25 @@ public class SetupApplication {
 	 * Creates a new instance of the {@link SetupApplication} class
 	 * 
 	 * @param androidJar
+<<<<<<< HEAD
 	 *            The path to the Android SDK's "platforms" directory if Soot shall
 	 *            automatically select the JAR file to be used or the path to a
 	 *            single JAR file to force one.
+=======
+	 *            The path to the Android SDK's "platforms" directory if Soot
+	 *            shall automatically select the JAR file to be used or the path
+	 *            to a single JAR file to force one.
+>>>>>>> upstream/develop
 	 * @param apkFileLocation
 	 *            The path to the APK file to be analyzed
 	 * @param ipcManager
 	 *            The IPC manager to use for modelling inter-component and
 	 *            inter-application data flows
 	 */
+
 	public SetupApplication(String androidJar, String apkFileLocation, String apk2FileLocation,
 			String additionalClasspath, IIPCManager ipcManager) {
+
 		File f = new File(androidJar);
 		this.forceAndroidJar = f.isFile();
 
@@ -242,8 +264,13 @@ public class SetupApplication {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Gets the set of sinks loaded into FlowDroid These are the sinks as they are
 	 * defined through the SourceSinkManager.
+=======
+	 * Gets the set of sinks loaded into FlowDroid These are the sinks as they
+	 * are defined through the SourceSinkManager.
+>>>>>>> upstream/develop
 	 * 
 	 * @return The set of sinks loaded into FlowDroid
 	 */
@@ -252,9 +279,15 @@ public class SetupApplication {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Gets the concrete instances of sinks that have been collected inside the app.
 	 * This method returns null if source and sink logging has not been enabled (see
 	 * InfoflowConfiguration.setLogSourcesAndSinks()).
+=======
+	 * Gets the concrete instances of sinks that have been collected inside the
+	 * app. This method returns null if source and sink logging has not been
+	 * enabled (see InfoflowConfiguration.setLogSourcesAndSinks()).
+>>>>>>> upstream/develop
 	 * 
 	 * @return The set of concrete sink instances in the app
 	 */
@@ -288,9 +321,15 @@ public class SetupApplication {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Gets the concrete instances of sources that have been collected inside the
 	 * app. This method returns null if source and sink logging has not been enabled
 	 * (see InfoflowConfiguration.setLogSourcesAndSinks()).
+=======
+	 * Gets the concrete instances of sources that have been collected inside
+	 * the app. This method returns null if source and sink logging has not been
+	 * enabled (see InfoflowConfiguration.setLogSourcesAndSinks()).
+>>>>>>> upstream/develop
 	 * 
 	 * @return The set of concrete source instances in the app
 	 */
@@ -316,7 +355,8 @@ public class SetupApplication {
 	/**
 	 * Gets the set of classes containing entry point methods for the lifecycle
 	 * 
-	 * @return The set of classes containing entry point methods for the lifecycle
+	 * @return The set of classes containing entry point methods for the
+	 *         lifecycle
 	 */
 	public Set<SootClass> getEntrypointClasses() {
 		return entrypoints;
@@ -337,8 +377,14 @@ public class SetupApplication {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Sets the class names of callbacks. If this value is null, it automatically
 	 * loads the names from AndroidCallbacks.txt as the default behavior.
+=======
+	 * Sets the class names of callbacks. If this value is null, it
+	 * automatically loads the names from AndroidCallbacks.txt as the default
+	 * behavior.
+>>>>>>> upstream/develop
 	 * 
 	 * @param callbackClasses
 	 *            The class names of callbacks or null to use the default file.
@@ -422,8 +468,8 @@ public class SetupApplication {
 	}
 
 	/**
-	 * Calculates the sets of sources, sinks, entry points, and callbacks methods
-	 * for the entry point in the given APK file.
+	 * Calculates the sets of sources, sinks, entry points, and callbacks
+	 * methods for the entry point in the given APK file.
 	 * 
 	 * @param sourcesAndSinks
 	 *            A provider from which the analysis can obtain the list of sources
@@ -473,15 +519,30 @@ public class SetupApplication {
 				callbacks = this.callbackMethods.get(entryPoint);
 
 			// Create the SourceSinkManager
-			sourceSinkManager = new AccessPathBasedSourceSinkManager(this.sourceSinkProvider.getSources(),
-					this.sourceSinkProvider.getSinks(), callbacks, config.getLayoutMatchingMode(),
-					lfp == null ? null : lfp.getUserControlsByID());
-
-			sourceSinkManager.setAppPackageName(this.manifest.getPackageName());
-			sourceSinkManager.setResourcePackages(this.resources.getPackages());
-			sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
-			sourceSinkManager.setEnableLifecycleSources(this.config.getEnableLifecycleSources());
+			sourceSinkManager = createSourceSinkManager(lfp, callbacks);
 		}
+	}
+
+	/**
+	 * Creates an instance of {@link ISourceSinkManager} that defines what
+	 * FlowDorid shall consider as a source or sink, respectively.
+	 * 
+	 * @param lfp
+	 *            The parser that handles the layout XML files
+	 * @param callbacks
+	 *            The callbacks that have been collected so far
+	 * @return The new source sink manager
+	 */
+	protected ISourceSinkManager createSourceSinkManager(LayoutFileParser lfp, Set<CallbackDefinition> callbacks) {
+		AccessPathBasedSourceSinkManager sourceSinkManager = new AccessPathBasedSourceSinkManager(
+				this.sourceSinkProvider.getSources(), this.sourceSinkProvider.getSinks(), callbacks,
+				config.getLayoutMatchingMode(), lfp == null ? null : lfp.getUserControlsByID());
+
+		sourceSinkManager.setAppPackageName(this.manifest.getPackageName());
+		sourceSinkManager.setResourcePackages(this.resources.getPackages());
+		sourceSinkManager.setEnableCallbackSources(this.config.getEnableCallbackSources());
+		sourceSinkManager.setEnableLifecycleSources(this.config.getEnableLifecycleSources());
+		return sourceSinkManager;
 	}
 
 	/**
@@ -610,7 +671,8 @@ public class SetupApplication {
 				}
 
 				if (!isInitial) {
-					// Some callback analyzers need to explicitly update their state
+					// Some callback analyzers need to explicitly update their
+					// state
 					// for every new dummy main method
 					jimpleClass.collectCallbackMethodsIncremental();
 
@@ -626,7 +688,9 @@ public class SetupApplication {
 				constructCallgraphInternal();
 				PackManager.v().getPack("wjtp").apply();
 
+
 				// Creating all callgraph takes time and memory. Check whether the
+
 				// solver has been aborted in the meantime
 				if (jimpleClass instanceof IMemoryBoundedSolver) {
 					if (((IMemoryBoundedSolver) jimpleClass).isKilled()) {
@@ -810,7 +874,10 @@ public class SetupApplication {
 
 		// Collect the fragments, merge the fragments created in the code with
 		// those declared in Xml files
-		if (fragmentClasses.putAll(jimpleClass.getFragmentClasses())) // Fragments declared in code
+		if (fragmentClasses.putAll(jimpleClass.getFragmentClasses())) // Fragments
+																		// declared
+																		// in
+																		// code
 			hasNewCallback = true;
 
 		return hasNewCallback;
@@ -943,7 +1010,7 @@ public class SetupApplication {
 	 * 
 	 * @return FlowDroid's source/sink manager
 	 */
-	public AccessPathBasedSourceSinkManager getSourceSinkManager() {
+	public ISourceSinkManager getSourceSinkManager() {
 		return sourceSinkManager;
 	}
 
@@ -1172,7 +1239,6 @@ public class SetupApplication {
 		return runInfoflow(parser);
 	}
 
-	private static final SootClass DUMMY_ENTRYPOINT = new SootClass("dummy");
 
 	/**
 	 * Runs the data flow analysis.
@@ -1221,7 +1287,12 @@ public class SetupApplication {
 			entrypointWorklist = new ArrayList<SootClass>(entrypoints);
 		else {
 			entrypointWorklist = new ArrayList<>();
-			entrypointWorklist.add(DUMMY_ENTRYPOINT);
+			SootClass dummyEntrypoint;
+			if (Scene.v().containsClass("dummy"))
+				dummyEntrypoint = Scene.v().getSootClass("dummy");
+			else
+				dummyEntrypoint = new SootClass("dummy");
+			entrypointWorklist.add(dummyEntrypoint);
 		}
 
 		// For every entry point (or the dummy entry point which stands for all
@@ -1241,18 +1312,16 @@ public class SetupApplication {
 				throw new RuntimeException("Callgraph construction failed", e);
 			}
 
-			// Stop here if we are only constructing the callgraph
-			if (!config.isTaintAnalysisEnabled()) {
-				return resultAggregator.getResults();
-			}
 
+			final Set<SourceSinkDefinition> sources = getSources();
+			final Set<SourceSinkDefinition> sinks = getSinks();
 			if (config.getOneComponentAtATime())
 				logger.info("Running data flow analysis on {} (component {}/{}: {}) with {} sources and {} sinks...",
 						apkFileLocation, (entrypoints.size() - entrypointWorklist.size()), entrypoints.size(),
-						entrypoint, getSources().size(), getSinks().size());
+						entrypoint, sources == null ? 0 : sources.size(), sinks == null ? 0 : sinks.size());
 			else
 				logger.info("Running data flow analysis on {} with {} sources and {} sinks...", apkFileLocation,
-						getSources().size(), getSinks().size());
+						sources == null ? 0 : sources.size(), sinks == null ? 0 : sinks.size());
 
 			// Create a new entry point and compute the flows in it. If we
 			// analyze all components together, we do not need a new callgraph,
@@ -1383,7 +1452,8 @@ public class SetupApplication {
 		if (component == null)
 			return this.entrypoints;
 		else {
-			// We always analyze the application class together with each component
+			// We always analyze the application class together with each
+			// component
 			// as there might be interactions between the two
 			Set<SootClass> components = new HashSet<>(2);
 			components.add(component);
