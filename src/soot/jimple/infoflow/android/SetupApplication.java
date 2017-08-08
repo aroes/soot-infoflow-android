@@ -109,12 +109,13 @@ public class SetupApplication {
 
 	private ARSCFileParser resources = null;
 	private ProcessManifest manifest = null;
-
-	private SetupApplication apk2 = null;
+	private ProcessManifest manifest2 = null;
 
 	private final String androidJar;
 	private final boolean forceAndroidJar;
 	private final String apkFileLocation;
+	private String apk2FileLocation = null;
+
 	private final String additionalClasspath;
 	private ITaintPropagationWrapper taintWrapper;
 
@@ -135,6 +136,8 @@ public class SetupApplication {
 
 	private Set<PreAnalysisHandler> preprocessors = new HashSet<>();
 	private Set<ResultsAvailableHandler> resultsAvailableHandlers = new HashSet<>();
+
+
 
 	/**
 	 * Class for aggregating the data flow results obtained through multiple runs of
@@ -219,7 +222,7 @@ public class SetupApplication {
 	 *            The IPC manager to use for modelling inter-component and
 	 *            inter-application data flows
 	 */
-	public SetupApplication(String androidJar, String apkFileLocation, String apkFileLocation2,
+	public SetupApplication(String androidJar, String apkFileLocation, String apk2FileLocation,
 			String additionalClasspath, IIPCManager ipcManager) {
 		File f = new File(androidJar);
 		this.forceAndroidJar = f.isFile();
@@ -230,9 +233,7 @@ public class SetupApplication {
 		this.ipcManager = ipcManager;
 		this.additionalClasspath = additionalClasspath;
 
-		if (apkFileLocation2 != null) {
-			apk2 = new SetupApplication(androidJar, apkFileLocation2);
-		}
+		this.apk2FileLocation = apk2FileLocation;
 	}
 
 	// Constructor for dual apk analysis
@@ -387,10 +388,19 @@ public class SetupApplication {
 		for (String className : manifest.getEntryPointClasses())
 			this.entrypoints.add(Scene.v().getSootClassUnsafe(className));
 
+		if (apk2FileLocation != null) {
+			this.manifest2 = new ProcessManifest(apk2FileLocation);
+			for (String className : manifest2.getEntryPointClasses())
+				this.entrypoints.add(Scene.v().getSootClassUnsafe(className));
+		}
+
 		// Parse the resource file
 		long beforeARSC = System.nanoTime();
 		this.resources = new ARSCFileParser();
 		this.resources.parse(apkFileLocation);
+		if (apk2FileLocation != null) {
+			this.resources.parse(apk2FileLocation);
+		}
 		logger.info("ARSC file parsing took " + (System.nanoTime() - beforeARSC) / 1E9 + " seconds");
 	}
 
@@ -531,6 +541,9 @@ public class SetupApplication {
 
 			// Make sure that we don't have any leftovers from previous runs
 			PackManager.v().getPack("wjtp").remove("wjtp.lfp");
+			if (apk2FileLocation != null) {
+				PackManager.v().getPack("wjtp").remove("wjtp.lfp2");
+			}
 			PackManager.v().getPack("wjtp").remove("wjtp.ajc");
 		}
 
@@ -550,7 +563,7 @@ public class SetupApplication {
 
 		// Find the user-defined sources in the layout XML files. This
 		// only needs to be done once, but is a Soot phase.
-		lfp.parseLayoutFile(apkFileLocation);
+		lfp.parseLayoutFile(apkFileLocation, apk2FileLocation);
 
 		// Watch the callback collection algorithm's memory consumption
 		FlowDroidMemoryWatcher memoryWatcher = null;
@@ -603,6 +616,9 @@ public class SetupApplication {
 
 					// We only want to parse the layout files once
 					PackManager.v().getPack("wjtp").remove("wjtp.lfp");
+					if (apk2FileLocation != null) {
+						PackManager.v().getPack("wjtp").remove("wjtp.lfp2");
+					}
 				}
 				isInitial = false;
 
@@ -683,6 +699,9 @@ public class SetupApplication {
 
 		// Make sure that we don't retain any weird Soot phases
 		PackManager.v().getPack("wjtp").remove("wjtp.lfp");
+		if (apk2FileLocation != null) {
+			PackManager.v().getPack("wjtp").remove("wjtp.lfp2");
+		}
 		PackManager.v().getPack("wjtp").remove("wjtp.ajc");
 
 		// Warn the user if we had to abort the callback analysis early
@@ -837,7 +856,9 @@ public class SetupApplication {
 		// Find the user-defined sources in the layout XML files. This
 		// only needs to be done once, but is a Soot phase.
 		lfp.parseLayoutFileDirect(apkFileLocation);
-
+		if (apk2FileLocation != null) {
+			lfp.parseLayoutFileDirect(apk2FileLocation);
+		}
 		// Collect the XML-based callback methods
 		collectXmlBasedCallbackMethods(lfp, jimpleClass);
 
@@ -902,18 +923,18 @@ public class SetupApplication {
 	private void createMainMethod(SootClass component) {
 		// Always update the entry point creator to reflect the newest set
 		// of callback methods
-		//if (apk2 == null) {
-			dummyMainMethod = createEntryPointCreator(component).createDummyMain();
-			Scene.v().setEntryPoints(Collections.singletonList(dummyMainMethod));
-			if (!dummyMainMethod.getDeclaringClass().isInScene())
-				Scene.v().addClass(dummyMainMethod.getDeclaringClass());
+		// if (apk2 == null) {
+		dummyMainMethod = createEntryPointCreator(component).createDummyMain();
+		Scene.v().setEntryPoints(Collections.singletonList(dummyMainMethod));
+		if (!dummyMainMethod.getDeclaringClass().isInScene())
+			Scene.v().addClass(dummyMainMethod.getDeclaringClass());
 
-			// addClass() declares the given class as a library class. We need to
-			// fix this.
-			dummyMainMethod.getDeclaringClass().setApplicationClass();
-		//} else {
-		//	dummyMainMethod = apk2.dummyMainMethod;
-		//}
+		// addClass() declares the given class as a library class. We need to
+		// fix this.
+		dummyMainMethod.getDeclaringClass().setApplicationClass();
+		// } else {
+		// dummyMainMethod = apk2.dummyMainMethod;
+		// }
 	}
 
 	/**
@@ -1168,14 +1189,6 @@ public class SetupApplication {
 		this.sourceSinkProvider = sourcesAndSinks;
 		this.dummyMainMethod = null;
 
-		CallGraph cg = null;
-		if (apk2 != null) {
-			apk2.constructCallgraph();
-			Cloner cloner = new Cloner();
-			cg = cloner.deepClone(Scene.v().getCallGraph());
-
-		}
-
 		// Perform some sanity checks on the configuration
 		if (config.getEnableLifecycleSources() && config.isIccEnabled()) {
 			logger.warn("ICC model specified, automatically disabling lifecycle sources");
@@ -1232,23 +1245,6 @@ public class SetupApplication {
 			if (!config.isTaintAnalysisEnabled()) {
 				return resultAggregator.getResults();
 			}
-
-			// Augment callgraph with app2
-			if (cg != null) {
-				Iterator<Edge> app2Itr = cg.iterator();
-
-				while (app2Itr.hasNext()) {
-					Edge edge = app2Itr.next();
-					if(edge.getSrc() == apk2.getDummyMainMethod()) {
-						edge.setSrc(dummyMainMethod);
-					}
-					if(edge.getTgt() == apk2.getDummyMainMethod()) {
-						edge.setTgt(dummyMainMethod);
-					}
-					Scene.v().getCallGraph().addEdge(edge);
-				}
-			}
-		
 
 			if (config.getOneComponentAtATime())
 				logger.info("Running data flow analysis on {} (component {}/{}: {}) with {} sources and {} sinks...",
@@ -1395,6 +1391,12 @@ public class SetupApplication {
 			String applictionName = manifest.getApplicationName();
 			if (applictionName != null && !applictionName.isEmpty())
 				components.add(Scene.v().getSootClassUnsafe(applictionName));
+			if (manifest2 != null) {
+				String applictionName2 = manifest2.getApplicationName();
+				if (applictionName2 != null && !applictionName2.isEmpty())
+					components.add(Scene.v().getSootClassUnsafe(applictionName2));
+			}
+
 			return components;
 		}
 	}
