@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jasmin"/>
 	<classpathentry kind="lib" path="/component-flow/mysql-connector-java-5.1.43-bin.jar"/>
 	<classpathentry kind="lib" path="/heros/slf4j-simple-1.7.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dbtableprinter"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

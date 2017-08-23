@@ -83,25 +83,19 @@ public class TestCompat {
 			if (results == null) {
 				print("No results found.");
 			} else {
-				// Init DB
-				SQLManager mgr = null;
-				try {
-					mgr = new SQLManager();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
 
 				boolean valid = (TestCompat.appName != null) && (mgr != null);
 				String fullAppName = null;
 				if (TestCompat.apkType.equalsIgnoreCase("wear")) {
-					fullAppName = "WEAR" + TestCompat.appName;
+					fullAppName = "wear" + TestCompat.appName;
 				} else if (TestCompat.apkType.equalsIgnoreCase("phone")) {
-					fullAppName = "PHONE" + TestCompat.appName;
+					fullAppName = "phone" + TestCompat.appName;
 				} else {
 					valid = false;
 				}
 				if (valid) {
 					//Create table
+					System.out.println("Creating flow table for: " + fullAppName);
 					mgr.createFlowTable(fullAppName);
 					// Record the results
 					for (ResultSinkInfo sink : results.getResults().keySet()) {
@@ -122,7 +116,7 @@ public class TestCompat {
 					}
 
 				} else {
-					System.out.println("could not record results");
+					System.out.println("Could not record results into database.");
 				}
 
 				// Serialize the results if requested
@@ -169,6 +163,7 @@ public class TestCompat {
 
 	private static String appName = null;
 	private static String apkType = null;
+	public static SQLManager mgr = null;
 
 	private static IIPCManager ipcManager = null;
 
